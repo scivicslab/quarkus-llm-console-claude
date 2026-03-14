@@ -1,5 +1,5 @@
 {
-  "name": "quarkus-coder-agent-e2e",
+  "name": "quarkus-llm-console-e2e",
   "version": "1.0.0",
   "private": true,
   "scripts": {

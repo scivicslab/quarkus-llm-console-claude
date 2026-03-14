@@ -33,12 +33,12 @@ class ChatServiceTest {
 
     @Test
     void restoreSession_fromFile(@TempDir Path tempDir) throws Exception {
-        Path file = tempDir.resolve(".coder-agent-session-7777");
+        Path file = tempDir.resolve(".llm-console-session-7777");
         Files.writeString(file, "sessionId=abc-123\nmodel=opus\n");
 
         ChatService service = new ChatService(
                 Optional.empty(), Optional.empty(),
-                tempDir.resolve(".coder-agent-session").toString(), 7777);
+                tempDir.resolve(".llm-console-session").toString(), 7777);
 
         assertEquals("opus", service.getModel());
     }
@@ -47,7 +47,7 @@ class ChatServiceTest {
     void restoreSession_noFile(@TempDir Path tempDir) {
         ChatService service = new ChatService(
                 Optional.empty(), Optional.empty(),
-                tempDir.resolve(".coder-agent-session").toString(), 7777);
+                tempDir.resolve(".llm-console-session").toString(), 7777);
 
         assertEquals("opus", service.getModel());
     }
@@ -56,11 +56,11 @@ class ChatServiceTest {
     void saveSession_writesFile(@TempDir Path tempDir) throws Exception {
         ChatService service = new ChatService(
                 Optional.empty(), Optional.empty(),
-                tempDir.resolve(".coder-agent-session").toString(), 7777);
+                tempDir.resolve(".llm-console-session").toString(), 7777);
 
         service.saveSession("sess-xyz", "haiku");
 
-        Path file = tempDir.resolve(".coder-agent-session-7777");
+        Path file = tempDir.resolve(".llm-console-session-7777");
         assertTrue(Files.exists(file));
         String content = Files.readString(file);
         assertTrue(content.contains("sessionId=sess-xyz"));
@@ -69,12 +69,12 @@ class ChatServiceTest {
 
     @Test
     void deleteSessionFile_removesFile(@TempDir Path tempDir) throws Exception {
-        Path file = tempDir.resolve(".coder-agent-session-7777");
+        Path file = tempDir.resolve(".llm-console-session-7777");
         Files.writeString(file, "sessionId=abc\nmodel=sonnet\n");
 
         ChatService service = new ChatService(
                 Optional.empty(), Optional.empty(),
-                tempDir.resolve(".coder-agent-session").toString(), 7777);
+                tempDir.resolve(".llm-console-session").toString(), 7777);
 
         service.deleteSessionFile();
         assertFalse(Files.exists(file));
@@ -82,12 +82,12 @@ class ChatServiceTest {
 
     @Test
     void restoreSession_corruptFile_fallsBackToDefaults(@TempDir Path tempDir) throws Exception {
-        Path file = tempDir.resolve(".coder-agent-session-7777");
+        Path file = tempDir.resolve(".llm-console-session-7777");
         Files.writeString(file, "garbage content\nno equals sign\n");
 
         ChatService service = new ChatService(
                 Optional.empty(), Optional.empty(),
-                tempDir.resolve(".coder-agent-session").toString(), 7777);
+                tempDir.resolve(".llm-console-session").toString(), 7777);
 
         assertEquals("opus", service.getModel());
     }
@@ -96,7 +96,7 @@ class ChatServiceTest {
     void cancel_whenNotBusy_doesNotThrow(@TempDir Path tempDir) {
         ChatService service = new ChatService(
                 Optional.empty(), Optional.empty(),
-                tempDir.resolve(".coder-agent-session").toString(), 9999);
+                tempDir.resolve(".llm-console-session").toString(), 9999);
         assertDoesNotThrow(service::cancel);
     }
 
@@ -104,7 +104,7 @@ class ChatServiceTest {
     void getAvailableModels_returnsClaudeModels(@TempDir Path tempDir) {
         ChatService service = new ChatService(
                 Optional.empty(), Optional.empty(),
-                tempDir.resolve(".coder-agent-session").toString(), 9999);
+                tempDir.resolve(".llm-console-session").toString(), 9999);
 
         var models = service.getAvailableModels();
         assertEquals(3, models.size());

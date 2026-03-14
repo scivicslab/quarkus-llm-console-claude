@@ -63,7 +63,7 @@ public class ChatResource {
     @Inject
     ObjectMapper objectMapper;
 
-    @ConfigProperty(name = "coder-agent.title", defaultValue = "quarkus-coder-agent-claude")
+    @ConfigProperty(name = "llm-console.title", defaultValue = "LLM Console - Claude")
     String appTitle;
 
     /** Raw Vert.x response for SSE streaming (bypasses RESTEasy buffering). */

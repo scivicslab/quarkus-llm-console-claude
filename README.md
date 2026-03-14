@@ -1,4 +1,4 @@
-# quarkus-coder-agent-claude
+# quarkus-llm-console-claude
 
 A lightweight Web UI for Claude Code CLI. Chat with Claude models from your browser with real-time SSE streaming, prompt queuing, and session management.
 
@@ -20,7 +20,7 @@ A lightweight Web UI for Claude Code CLI. Chat with Claude models from your brow
 Authentication is resolved in this order:
 
 1. **Claude Code CLI** — if `claude` is on your PATH, it is used directly
-2. **Environment variable / config property** — set `ANTHROPIC_API_KEY` or pass `-Dcoder-agent.api-key=sk-ant-...`
+2. **Environment variable / config property** — set `ANTHROPIC_API_KEY` or pass `-Dllm-console.api-key=sk-ant-...`
 3. **Web UI prompt** — if none of the above, the browser shows an API key input dialog at startup
 
 ## Installation
@@ -38,24 +38,24 @@ There are two ways to install: using a pre-built native image binary, or buildin
 
 #### Install
 
-Download the binary for your platform from the [Releases](https://github.com/oogasawa/quarkus-coder-agent-claude/releases) page:
+Download the binary for your platform from the [Releases](https://github.com/oogasawa/quarkus-llm-console-claude/releases) page:
 
 | File | Platform |
 |------|----------|
-| `quarkus-coder-agent-claude-vX.Y.Z-linux-x86_64` | Linux (x86_64) |
-| `quarkus-coder-agent-claude-vX.Y.Z-linux-aarch64` | Linux (aarch64 / DGX Spark) |
-| `quarkus-coder-agent-claude-vX.Y.Z-macos-aarch64` | macOS (Apple Silicon) |
-| `quarkus-coder-agent-claude-vX.Y.Z-macos-x86_64` | macOS (Intel) |
-| `quarkus-coder-agent-claude-vX.Y.Z-windows-x86_64.exe` | Windows |
+| `quarkus-llm-console-claude-vX.Y.Z-linux-x86_64` | Linux (x86_64) |
+| `quarkus-llm-console-claude-vX.Y.Z-linux-aarch64` | Linux (aarch64 / DGX Spark) |
+| `quarkus-llm-console-claude-vX.Y.Z-macos-aarch64` | macOS (Apple Silicon) |
+| `quarkus-llm-console-claude-vX.Y.Z-macos-x86_64` | macOS (Intel) |
+| `quarkus-llm-console-claude-vX.Y.Z-windows-x86_64.exe` | Windows |
 
 ```bash
-chmod +x quarkus-coder-agent-claude-*
+chmod +x quarkus-llm-console-claude-*
 ```
 
 #### Run
 
 ```bash
-./quarkus-coder-agent-claude-v1.0.0-linux-x86_64
+./quarkus-llm-console-claude-v1.0.0-linux-x86_64
 ```
 
 Open `http://localhost:8090` in your browser.
@@ -63,13 +63,13 @@ Open `http://localhost:8090` in your browser.
 Change the HTTP port:
 
 ```bash
-./quarkus-coder-agent-claude-v1.0.0-linux-x86_64 -Dquarkus.http.port=9090
+./quarkus-llm-console-claude-v1.0.0-linux-x86_64 -Dquarkus.http.port=9090
 ```
 
 Provide API key:
 
 ```bash
-ANTHROPIC_API_KEY=sk-ant-... ./quarkus-coder-agent-claude-v1.0.0-linux-x86_64
+ANTHROPIC_API_KEY=sk-ant-... ./quarkus-llm-console-claude-v1.0.0-linux-x86_64
 ```
 
 ---
@@ -85,8 +85,8 @@ ANTHROPIC_API_KEY=sk-ant-... ./quarkus-coder-agent-claude-v1.0.0-linux-x86_64
 #### Build
 
 ```bash
-git clone https://github.com/oogasawa/quarkus-coder-agent-claude.git
-cd quarkus-coder-agent-claude
+git clone https://github.com/oogasawa/quarkus-llm-console-claude.git
+cd quarkus-llm-console-claude
 rm -rf target
 mvn install
 ```
@@ -114,7 +114,7 @@ ANTHROPIC_API_KEY=sk-ant-... java -jar target/quarkus-app/quarkus-run.jar
 Or via config property:
 
 ```bash
-java -Dcoder-agent.api-key=sk-ant-... -jar target/quarkus-app/quarkus-run.jar
+java -Dllm-console.api-key=sk-ant-... -jar target/quarkus-app/quarkus-run.jar
 ```
 
 #### JBang launcher
@@ -139,7 +139,7 @@ sudo dnf install zlib-devel
 ```bash
 rm -rf target
 mvn install -Dnative -DskipTests
-./target/quarkus-coder-agent-claude-1.0.0-runner
+./target/quarkus-llm-console-claude-1.0.0-runner
 ```
 
 ---

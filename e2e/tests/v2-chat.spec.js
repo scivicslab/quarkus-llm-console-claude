@@ -9,7 +9,7 @@ function sseBody(events) {
 }
 
 /**
- * E2E tests for quarkus-coder-agent v1.0.0
+ * E2E tests for quarkus-llm-console v1.0.0
  *
  * These tests mock server responses via Playwright route interception
  * so they do not depend on the Claude CLI.

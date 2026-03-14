@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * JBang launcher for quarkus-coder-agent-claude.
+ * JBang launcher for quarkus-llm-console-claude.
  * Locates the Quarkus runner jar and starts the HTTP server.
  *
  * Usage:
@@ -44,13 +44,13 @@ class coder_agent {
         command.add("java");
         command.add("-Dquarkus.http.port=" + port);
         if (workingDir != null) {
-            command.add("-Dcoder-agent.llm.working-dir=" + workingDir);
+            command.add("-Dllm-console.llm.working-dir=" + workingDir);
         }
         command.addAll(extraProps);
         command.add("-jar");
         command.add(jarFile.getAbsolutePath());
 
-        System.out.println("Starting quarkus-coder-agent-claude on http://localhost:" + port + "/");
+        System.out.println("Starting quarkus-llm-console-claude on http://localhost:" + port + "/");
 
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.inheritIO();
@@ -73,21 +73,21 @@ class coder_agent {
     private static File locateJar() {
         List<Path> candidates = new ArrayList<>();
 
-        String envPath = System.getenv("CODER_AGENT_JAR");
+        String envPath = System.getenv("LLM_CONSOLE_JAR");
         if (envPath != null && !envPath.isBlank()) {
             candidates.add(Paths.get(envPath));
         }
 
         // Project build output
         candidates.add(Paths.get(System.getProperty("user.home"),
-                                 "works", "quarkus-coder-agent-claude", "target",
+                                 "works", "quarkus-llm-console-claude", "target",
                                  "quarkus-app", "quarkus-run.jar"));
 
         // Maven local repository
         candidates.add(Paths.get(System.getProperty("user.home"),
                                  ".m2", "repository", "com", "github", "oogasawa",
-                                 "quarkus-coder-agent-claude",
-                                 VERSION, "quarkus-coder-agent-claude-" + VERSION + ".jar"));
+                                 "quarkus-llm-console-claude",
+                                 VERSION, "quarkus-llm-console-claude-" + VERSION + ".jar"));
 
         for (Path candidate : candidates) {
             File file = candidate.toFile();
@@ -96,12 +96,12 @@ class coder_agent {
             }
         }
 
-        String message = "quarkus-coder-agent-claude jar not found.\nChecked locations:\n"
+        String message = "quarkus-llm-console-claude jar not found.\nChecked locations:\n"
             + candidates.stream()
                         .map(Path::toString)
                         .collect(Collectors.joining("\n - ", " - ", ""))
-            + "\nRun `cd ~/works/quarkus-coder-agent-claude && mvn install` "
-            + "or set CODER_AGENT_JAR to the jar path.";
+            + "\nRun `cd ~/works/quarkus-llm-console-claude && mvn install` "
+            + "or set LLM_CONSOLE_JAR to the jar path.";
         throw new IllegalStateException(message);
     }
 }

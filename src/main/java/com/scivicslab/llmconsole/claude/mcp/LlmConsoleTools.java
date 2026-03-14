@@ -12,12 +12,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * MCP tools for the Coder Agent.
+ * MCP tools for the LLM Console.
  *
  * <p>Allows external MCP clients (e.g., workflow-editor) to send prompts
  * to Claude and retrieve results programmatically.</p>
  */
-public class CoderAgentTools {
+public class LlmConsoleTools {
 
     @Inject
     ChatService chatService;
@@ -63,7 +63,7 @@ public class CoderAgentTools {
         return response.toString();
     }
 
-    @Tool(description = "Get the current status of the Coder Agent (model, session, busy state)")
+    @Tool(description = "Get the current status of the LLM Console (model, session, busy state)")
     String getStatus() {
         return String.format("model=%s, session=%s, busy=%s",
                 chatService.getModel(),

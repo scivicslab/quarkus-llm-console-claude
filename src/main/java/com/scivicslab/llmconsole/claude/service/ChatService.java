@@ -58,11 +58,11 @@ public class ChatService {
 
     @Inject
     public ChatService(
-            @ConfigProperty(name = "coder-agent.allowed-tools")
+            @ConfigProperty(name = "llm-console.allowed-tools")
             Optional<String> allowedTools,
-            @ConfigProperty(name = "coder-agent.api-key")
+            @ConfigProperty(name = "llm-console.api-key")
             Optional<String> configApiKeyOpt,
-            @ConfigProperty(name = "coder-agent.session-file", defaultValue = ".coder-agent-session")
+            @ConfigProperty(name = "llm-console.session-file", defaultValue = ".llm-console-session")
             String sessionFilePath,
             @ConfigProperty(name = "quarkus.http.port", defaultValue = "8090")
             int httpPort) {
