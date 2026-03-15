@@ -128,7 +128,7 @@ public class ChatResource {
         }
     }
 
-    private void emitSse(ChatEvent event) {
+    public void emitSse(ChatEvent event) {
         var resp = sseResponse;
         if (resp != null && !resp.ended()) {
             vertx.runOnContext(v -> writeSse(resp, event));

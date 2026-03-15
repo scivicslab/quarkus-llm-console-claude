@@ -216,11 +216,18 @@ public class ChatService {
 
     /** Sends a prompt to Claude CLI. */
     private void sendToClaude(String prompt, String model, Consumer<ChatEvent> sender) {
+        sendToClaude(prompt, model, sender, false);
+    }
+
+    private void sendToClaude(String prompt, String model, Consumer<ChatEvent> sender,
+                              boolean isRetry) {
         if (!isAuthenticated()) {
             sender.accept(ChatEvent.error(
                 "No authentication configured. Please provide your Anthropic API key."));
             return;
         }
+
+        final boolean[] staleSession = {false};
 
         try {
             // Pass API key to ClaudeProcess if using API_KEY mode
@@ -279,7 +286,14 @@ public class ChatService {
                                 false
                             ));
                         }
-                        case "error" -> sender.accept(ChatEvent.error(event.content()));
+                        case "error" -> {
+                            if (!isRetry && event.content() != null
+                                    && event.content().contains("No conversation found with session ID")) {
+                                staleSession[0] = true;
+                            } else {
+                                sender.accept(ChatEvent.error(event.content()));
+                            }
+                        }
                         case "prompt" -> sender.accept(ChatEvent.prompt(
                             event.promptId(),
                             event.content(),
@@ -299,7 +313,7 @@ public class ChatService {
 
                 @Override
                 public void onComplete(int exitCode) {
-                    if (exitCode != 0) {
+                    if (exitCode != 0 && !staleSession[0]) {
                         sender.accept(ChatEvent.error("Claude CLI exited with code: " + exitCode));
                     }
                 }
@@ -307,6 +321,17 @@ public class ChatService {
         } catch (IOException e) {
             logger.log(Level.WARNING, "Claude CLI failed", e);
             sender.accept(ChatEvent.error("Claude CLI error: " + e.getMessage()));
+            return;
+        }
+
+        // Retry with a new session if the previous session was stale
+        if (staleSession[0]) {
+            logger.warning("Stale session detected, clearing session and retrying with new session");
+            claudeProcess.cancel();
+            deleteSessionFile();
+            claudeProcess.setConfig(claudeProcess.getConfig().withSessionId(null));
+            sender.accept(ChatEvent.thinking("Session expired. Starting new session..."));
+            sendToClaude(prompt, model, sender, true);
         }
     }
 
