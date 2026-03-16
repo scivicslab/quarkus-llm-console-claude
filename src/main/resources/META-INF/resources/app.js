@@ -526,7 +526,35 @@
         }
     }
 
+    var notificationBar = document.getElementById('notification-bar');
+    function isTaskNotification(text) {
+        return text && text.indexOf('<task-notification>') !== -1;
+    }
+    function showNotification(text) {
+        var item = document.createElement('div');
+        item.className = 'notification-item';
+        var statusMatch = text.match(/<status>(.*?)<\/status>/);
+        var summaryMatch = text.match(/<summary>(.*?)<\/summary>/);
+        var status = statusMatch ? statusMatch[1] : 'unknown';
+        var summary = summaryMatch ? summaryMatch[1] : 'Background task notification';
+        item.textContent = '[' + status + '] ' + summary;
+        item.className += ' notification-' + status;
+        notificationBar.appendChild(item);
+        notificationBar.style.display = 'block';
+        setTimeout(function () {
+            item.classList.add('notification-fade');
+            setTimeout(function () {
+                if (item.parentNode) item.parentNode.removeChild(item);
+                if (notificationBar.children.length === 0) notificationBar.style.display = 'none';
+            }, 500);
+        }, 10000);
+    }
+
     function appendMessage(className, text) {
+        if (className === 'user' && isTaskNotification(text)) {
+            showNotification(text);
+            return;
+        }
         var div = document.createElement('div');
         div.className = 'message ' + className;
         div.textContent = text;
@@ -578,7 +606,7 @@
             var entries = JSON.parse(saved);
             if (!Array.isArray(entries) || entries.length === 0) return;
 
-            chatHistory = entries;
+            chatHistory = entries.filter(function (e) { return !(e.role === 'user' && isTaskNotification(e.text)); });
             for (var i = 0; i < entries.length; i++) {
                 var entry = entries[i];
                 if (entry.role === 'assistant') {
