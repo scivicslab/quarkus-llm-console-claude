@@ -29,10 +29,12 @@ import io.smallrye.common.annotation.Blocking;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -235,6 +237,16 @@ public class ChatResource {
     }
 
     @GET
+    @Path("/history")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<HistoryResponse> history(
+            @QueryParam("limit") @DefaultValue("50") int limit) {
+        return chatService.getHistory(limit).stream()
+                .map(e -> new HistoryResponse(e.role(), e.content()))
+                .toList();
+    }
+
+    @GET
     @Path("/config")
     @Produces(MediaType.APPLICATION_JSON)
     public AppConfig config() {
@@ -256,6 +268,8 @@ public class ChatResource {
     }
 
     public record AppConfig(String title, boolean authenticated, String authMode) {}
+
+    public record HistoryResponse(String role, String content) {}
 
     public record ModelInfo(String name, String type, String server) {}
 

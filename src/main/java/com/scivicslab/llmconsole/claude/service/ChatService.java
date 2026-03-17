@@ -28,6 +28,9 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -55,6 +58,10 @@ public class ChatService {
 
     // Session persistence
     private final Path sessionFile;
+
+    // Conversation history buffer for /api/history
+    private static final int MAX_HISTORY = 200;
+    private final LinkedList<HistoryEntry> conversationHistory = new LinkedList<>();
 
     @Inject
     public ChatService(
@@ -181,6 +188,7 @@ public class ChatService {
 
         if (input.trim().toLowerCase().startsWith("/clear")) {
             deleteSessionFile();
+            clearHistory();
         }
 
         sender.accept(ChatEvent.status(
@@ -227,7 +235,11 @@ public class ChatService {
             return;
         }
 
+        // Record user prompt in history
+        recordHistory("user", prompt);
+
         final boolean[] staleSession = {false};
+        final StringBuilder assistantBuf = new StringBuilder();
 
         try {
             // Pass API key to ClaudeProcess if using API_KEY mode
@@ -259,6 +271,7 @@ public class ChatService {
                     switch (event.type()) {
                         case "assistant" -> {
                             if (event.hasContent()) {
+                                assistantBuf.append(event.content());
                                 sender.accept(ChatEvent.delta(event.content()));
                             }
                         }
@@ -277,6 +290,10 @@ public class ChatService {
                         case "result" -> {
                             if (event.sessionId() != null) {
                                 saveSession(event.sessionId(), model);
+                            }
+                            // Record accumulated assistant response in history
+                            if (!assistantBuf.isEmpty()) {
+                                recordHistory("assistant", assistantBuf.toString());
                             }
                             sender.accept(ChatEvent.result(
                                 event.sessionId(),
@@ -348,6 +365,39 @@ public class ChatService {
         Thread t = activeThread;
         if (t != null) {
             t.interrupt();
+        }
+    }
+
+    // --- Conversation history buffer ---
+
+    /** A single message in the conversation history. */
+    public record HistoryEntry(String role, String content) {}
+
+    /** Record a message into the conversation history buffer. */
+    private void recordHistory(String role, String content) {
+        if (content == null || content.isBlank()) return;
+        synchronized (conversationHistory) {
+            conversationHistory.addLast(new HistoryEntry(role, content));
+            while (conversationHistory.size() > MAX_HISTORY) {
+                conversationHistory.removeFirst();
+            }
+        }
+    }
+
+    /** Returns a snapshot of the conversation history (oldest first). */
+    public List<HistoryEntry> getHistory(int limit) {
+        synchronized (conversationHistory) {
+            int size = conversationHistory.size();
+            int from = Math.max(0, size - limit);
+            return Collections.unmodifiableList(
+                    new ArrayList<>(conversationHistory.subList(from, size)));
+        }
+    }
+
+    /** Clears the conversation history buffer. */
+    public void clearHistory() {
+        synchronized (conversationHistory) {
+            conversationHistory.clear();
         }
     }
 
