@@ -108,6 +108,22 @@
         gfm: true
     });
 
+    // Fix unclosed markdown fences/inline-code so marked.parse() doesn't break mid-stream
+    function closeOpenMarkdown(text) {
+        // Count triple-backtick fences
+        var fenceCount = (text.match(/```/g) || []).length;
+        if (fenceCount % 2 !== 0) {
+            text += '\n```';
+        }
+        // Count single backticks (outside of fenced blocks)
+        var withoutFences = text.replace(/```/g, '');
+        var tickCount = (withoutFences.match(/`/g) || []).length;
+        if (tickCount % 2 !== 0) {
+            text += '`';
+        }
+        return text;
+    }
+
     // --- Timestamp helper ---
 
     function formatTime(date) {
@@ -336,7 +352,7 @@
         var displayText = currentAssistantText
             .replace(/<think>[\s\S]*?<\/think>/g, '')
             .replace(/<think>[\s\S]*$/, '');  // partial unclosed <think> block
-        currentAssistantMsg.innerHTML = marked.parse(displayText);
+        currentAssistantMsg.innerHTML = marked.parse(closeOpenMarkdown(displayText));
         scrollToBottom();
     }
 
