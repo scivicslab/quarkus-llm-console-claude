@@ -54,7 +54,7 @@ jobs:
         shell: bash
         run: |
           TAG="${GITHUB_REF_NAME}"
-          SRC="target/quarkus-llm-console-claude-1.0.0-runner${{ matrix.suffix }}"
+          SRC="target/quarkus-llm-console-claude-${TAG#v}-runner${{ matrix.suffix }}"
           DEST="quarkus-llm-console-claude-${TAG}-${{ matrix.label }}${{ matrix.suffix }}"
           cp "${SRC}" "${DEST}"
           echo "ARTIFACT=${DEST}" >> $GITHUB_ENV
