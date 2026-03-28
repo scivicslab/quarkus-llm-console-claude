@@ -306,6 +306,14 @@ public class ClaudeProcess {
      * @return command list starting with 'script'
      */
     List<String> wrapWithPty(List<String> claudeCmd) {
+        boolean isWindows = System.getProperty("os.name", "").toLowerCase().contains("win");
+
+        if (isWindows) {
+            // On Windows, PTY wrapping via 'script' is not available.
+            // Return the command as-is; Claude CLI on Windows does not require PTY.
+            return new ArrayList<>(claudeCmd);
+        }
+
         // Shell-escape each argument and join into a single command string
         String innerCommand = claudeCmd.stream()
             .map(arg -> "'" + arg.replace("'", "'\\''") + "'")

@@ -239,14 +239,20 @@ class ClaudeProcessTest {
         List<String> claudeCmd = cp.buildCommand();
         List<String> wrapped = cp.wrapWithPty(claudeCmd);
 
-        assertEquals("script", wrapped.get(0));
-        assertEquals("-q", wrapped.get(1));
-        assertEquals("-e", wrapped.get(2));
-        assertEquals("-f", wrapped.get(3));
-        assertEquals("-c", wrapped.get(4));
-        // The inner command is a shell-escaped string
-        assertTrue(wrapped.get(5).contains("claude"));
-        assertEquals("/dev/null", wrapped.get(wrapped.size() - 1));
+        boolean isWindows = System.getProperty("os.name", "").toLowerCase().contains("win");
+        if (isWindows) {
+            // On Windows, wrapWithPty returns the command as-is
+            assertEquals(claudeCmd, wrapped);
+        } else {
+            assertEquals("script", wrapped.get(0));
+            assertEquals("-q", wrapped.get(1));
+            assertEquals("-e", wrapped.get(2));
+            assertEquals("-f", wrapped.get(3));
+            assertEquals("-c", wrapped.get(4));
+            // The inner command is a shell-escaped string
+            assertTrue(wrapped.get(5).contains("claude"));
+            assertEquals("/dev/null", wrapped.get(wrapped.size() - 1));
+        }
     }
 
     @Test

@@ -148,7 +148,10 @@ public class ChatService {
     /** Checks if 'claude' CLI is available on PATH. */
     static boolean isClaudeCliAvailable() {
         try {
-            Process p = new ProcessBuilder("which", "claude")
+            // Use "where" on Windows, "which" on Unix/Mac
+            String command = System.getProperty("os.name", "").toLowerCase().contains("win")
+                    ? "where" : "which";
+            Process p = new ProcessBuilder(command, "claude")
                     .redirectErrorStream(true).start();
             int exit = p.waitFor();
             return exit == 0;
